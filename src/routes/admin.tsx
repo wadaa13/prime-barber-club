@@ -94,8 +94,8 @@ function Agenda() {
   const upd = (id: string, p: Partial<Booking>) => setState((st) => ({ ...st, bookings: st.bookings.map((b) => (b.id === id ? { ...b, ...p } : b)) }));
   const toggleBlock = (t: string) => setState((st) => { const k = `${date} ${t}`; return { ...st, blocked: st.blocked.includes(k) ? st.blocked.filter((x) => x !== k) : [...st.blocked, k] }; });
   const addWalk = () => {
-    if (!walk.name || !walk.time) return toast.error("Nome e horário");
-    if (isSlotTaken(s, date, walk.time)) return toast.error("Horário ocupado");
+    if (!walk.name || !walk.time) { toast.error("Nome e horário"); return; }
+    if (isSlotTaken(s, date, walk.time)) { toast.error("Horário ocupado"); return; }
     setState((st) => ({ ...st, bookings: [...st.bookings, { id: uid(), clientName: walk.name, phone: "", serviceId: walk.serviceId, date, time: walk.time, paid: true, walkIn: true, status: "concluido" }] }));
     setWalk({ ...walk, name: "", time: "" });
   };

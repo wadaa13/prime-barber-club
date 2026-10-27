@@ -39,15 +39,15 @@ function Cadastro() {
   const [loginPhone, setLoginPhone] = useState("");
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.name || !f.phone) return toast.error("Nome e WhatsApp são obrigatórios");
-    if (s.clients.some((c) => c.phone === f.phone)) return toast.error("WhatsApp já cadastrado — use Entrar");
+    if (!f.name || !f.phone) { toast.error("Nome e WhatsApp são obrigatórios"); return; }
+    if (s.clients.some((c) => c.phone === f.phone)) { toast.error("WhatsApp já cadastrado — use Entrar"); return; }
     const c: Client = { id: uid(), ...f, planId: f.planId || undefined };
     setState((st) => ({ ...st, clients: [...st.clients, c], currentClientId: c.id }));
     toast.success("Cadastro feito!");
   };
   const login = () => {
     const c = s.clients.find((x) => x.phone === loginPhone);
-    if (!c) return toast.error("WhatsApp não encontrado");
+    if (!c) { toast.error("WhatsApp não encontrado"); return; }
     setState((st) => ({ ...st, currentClientId: c.id }));
   };
   return (

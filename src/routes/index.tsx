@@ -31,7 +31,7 @@ function Index() {
     return out;
   }, []);
   const [serviceId, setServiceId] = useState<string>();
-  const [date, setDate] = useState(toISO(days[0]));
+  const [date, setDate] = useState(toISO(days[0] ?? new Date()));
   const [time, setTime] = useState<string>();
   const [step, setStep] = useState<"pick" | "pay" | "done">("pick");
   const me = s.clients.find((c) => c.id === s.currentClientId);
@@ -43,7 +43,7 @@ function Index() {
   const confirm = (payFull: boolean) => {
     if (!service || !time) return;
     const n = me?.name ?? name, p = me?.phone ?? phone;
-    if (!n || !p) return toast.error("Informe nome e telefone");
+    if (!n || !p) { toast.error("Informe nome e telefone"); return; }
     setState((st) => ({ ...st, bookings: [...st.bookings, { id: uid(), clientId: me?.id, clientName: n, phone: p, serviceId: service.id, date, time, paid: payFull, status: "agendado" }] }));
     setStep("done");
     toast.success("Horário reservado!");
