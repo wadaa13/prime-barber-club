@@ -2,17 +2,17 @@ import { useSyncExternalStore } from "react";
 
 export type Service = { id: string; name: string; price: number; duration: number; description: string };
 export type Plan = { id: string; name: string; price: number; description: string };
-export type Client = { id: string; name: string; phone: string; email: string; birthday: string; planId?: string };
+export type Client = { id: string; name: string; phone: string; email: string; birthday: string; planId?: string | undefined };
 export type Booking = {
   id: string;
-  clientId?: string;
+  clientId?: string | undefined;
   clientName: string;
   phone: string;
   serviceId: string;
   date: string; // yyyy-mm-dd
   time: string; // HH:mm
   paid: boolean;
-  walkIn?: boolean;
+  walkIn?: boolean | undefined;
   status: "agendado" | "concluido" | "cancelado";
 };
 export type Promo = { id: string; title: string; text: string; active: boolean };
@@ -24,7 +24,7 @@ export type State = {
   bookings: Booking[];
   blocked: string[]; // "yyyy-mm-dd HH:mm"
   promos: Promo[];
-  currentClientId?: string;
+  currentClientId?: string | undefined;
 };
 
 export const HOURS = { open: "09:00", close: "20:00", label: "Seg a Sáb · 09h às 20h" };
