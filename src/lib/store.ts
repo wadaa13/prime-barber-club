@@ -1,0 +1,95 @@
+import { useSyncExternalStore } from "react";
+
+export type Service = { id: string; name: string; price: number; duration: number; description: string };
+export type Plan = { id: string; name: string; price: number; description: string };
+export type Client = { id: string; name: string; phone: string; email: string; birthday: string; planId?: string };
+export type Booking = {
+  id: string;
+  clientId?: string;
+  clientName: string;
+  phone: string;
+  serviceId: string;
+  date: string; // yyyy-mm-dd
+  time: string; // HH:mm
+  paid: boolean;
+  walkIn?: boolean;
+  status: "agendado" | "concluido" | "cancelado";
+};
+export type Promo = { id: string; title: string; text: string; active: boolean };
+
+export type State = {
+  services: Service[];
+  plans: Plan[];
+  clients: Client[];
+  bookings: Booking[];
+  blocked: string[]; // "yyyy-mm-dd HH:mm"
+  promos: Promo[];
+  currentClientId?: string;
+};
+
+export const HOURS = { open: "09:00", close: "20:00", label: "Seg a Sáb · 09h às 20h" };
+export const SLOTS = ["09:00","09:40","10:20","11:00","11:40","13:00","13:40","14:20","15:00","15:40","16:20","17:00","17:40","18:20","19:00"];
+export const DEPOSIT_RATE = 0.3;
+
+const initial: State = {
+  services: [
+    { id: "corte", name: "Corte", price: 50, duration: 40, description: "Corte masculino com acabamento na navalha." },
+    { id: "corte-barba", name: "Corte e barba", price: 70, duration: 60, description: "Combo completo: corte e barba alinhada." },
+    { id: "barba", name: "Barba", price: 25, duration: 30, description: "Barba modelada com toalha quente." },
+    { id: "sobrancelha", name: "Sobrancelha", price: 10, duration: 10, description: "Limpeza e alinhamento da sobrancelha." },
+    { id: "pezinho", name: "Pezinho", price: 20, duration: 15, description: "Acabamento do contorno entre cortes." },
+  ],
+  plans: [
+    { id: "prata", name: "Plano Prata", price: 160, description: "O plano só inclui corte, um serviço por semana." },
+    { id: "ouro", name: "Plano Ouro", price: 200, description: "O plano inclui corte e barba, um serviço por semana." },
+    { id: "prime", name: "Plano Prime", price: 230, description: "O plano é ilimitado, serviço sem limitações." },
+  ],
+  clients: [],
+  bookings: [],
+  blocked: [],
+  promos: [{ id: "p1", title: "Terça e quarta mais leves", text: "10% off em Corte e barba nas terças e quartas.", active: true }],
+};
+
+const KEY = "barbearia100erro:v1";
+let state: State = initial;
+let loaded = false;
+const listeners = new Set<() => void>();
+
+function load() {
+  if (loaded || typeof window === "undefined") return;
+  loaded = true;
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) state = { ...initial, ...JSON.parse(raw) };
+  } catch {}
+}
+
+export function setState(fn: (s: State) => State) {
+  load();
+  state = fn(state);
+  localStorage.setItem(KEY, JSON.stringify(state));
+  listeners.forEach((l) => l());
+}
+
+export function useStore(): State {
+  return useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      if (!loaded) { load(); l(); }
+      return () => listeners.delete(l);
+    },
+    () => state,
+    () => initial,
+  );
+}
+
+export const uid = () => Math.random().toString(36).slice(2, 10);
+export const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+export const toISO = (d: Date) => {
+  const z = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+};
+
+export function isSlotTaken(s: State, date: string, time: string) {
+  return s.blocked.includes(`${date} ${time}`) || s.bookings.some((b) => b.date === date && b.time === time && b.status !== "cancelado");
+}
