@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Clock, Scissors, Check, CreditCard, Tag } from "lucide-react";
 import logo from "@/assets/logo.jpg.asset.json";
+import { Reviews } from "@/components/Reviews";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
@@ -175,6 +176,7 @@ function Index() {
           ))}
         </div>
       </section>
+      <Reviews />
       <SiteFooter />
     </div>
   );
