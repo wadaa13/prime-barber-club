@@ -36,8 +36,16 @@ export type State = {
   currentClientId?: string | undefined;
 };
 
-export const HOURS = { open: "09:00", close: "20:00", label: "Seg a Sáb · 09h às 20h" };
-export const SLOTS = ["09:00","09:40","10:20","11:00","11:40","13:00","13:40","14:20","15:00","15:40","16:20","17:00","17:40","18:20","19:00"];
+export const HOURS = { open: "10:00", close: "18:30", label: "Seg a Sáb · 10h às 18h30" };
+// Horários de 40 em 40 minutos, das 10:00 até o último que termina às 18:30.
+export const SLOTS = (() => {
+  const out: string[] = [];
+  const start = 10 * 60, end = 18 * 60 + 30, step = 40;
+  for (let m = start; m + step <= end; m += step) {
+    out.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+  }
+  return out;
+})();
 export const DEPOSIT_RATE = 0.3;
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 export const MAPS_URL = "https://maps.app.goo.gl/6kzqDmy3GBdxwZf67";
