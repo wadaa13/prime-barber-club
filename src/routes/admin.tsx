@@ -7,7 +7,7 @@ import logo from "@/assets/logo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SLOTS, WEEKDAYS, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore, type Booking, type Promo } from "@/lib/store";
+import { SLOTS, WEEKDAYS, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore, type Booking, type Promo, type Review } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -50,11 +50,13 @@ function AdminPage() {
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
           <TabsTrigger value="catalogo">Catálogo</TabsTrigger>
           <TabsTrigger value="clientes">Clientes</TabsTrigger>
+          <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
         </TabsList>
         <TabsContent value="financeiro"><Financeiro /></TabsContent>
         <TabsContent value="agenda"><Agenda /></TabsContent>
         <TabsContent value="catalogo"><Catalogo /></TabsContent>
         <TabsContent value="clientes"><Clientes /></TabsContent>
+        <TabsContent value="avaliacoes"><Avaliacoes /></TabsContent>
       </Tabs>
     </div>
   );
