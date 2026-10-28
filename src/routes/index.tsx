@@ -3,10 +3,11 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Clock, Scissors, Check, CreditCard, Tag } from "lucide-react";
 import logo from "@/assets/logo.jpg.asset.json";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DEPOSIT_RATE, HOURS, SLOTS, brl, isSlotTaken, setState, toISO, uid, useStore } from "@/lib/store";
+import { DEPOSIT_RATE, HOURS, SLOTS, WEEKDAYS, activePromo, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,17 +77,27 @@ function Index() {
       <section id="agendar" className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl">1. Escolha o serviço</h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {s.services.map((sv) => (
+          {s.services.map((sv) => {
+            const promo = activePromo(s, sv.id, date);
+            const price = priceFor(s, sv.id, date);
+            return (
             <button key={sv.id} onClick={() => { setServiceId(sv.id); setStep("pick"); }}
               className={`rounded-xl border p-5 text-left transition hover:border-primary ${serviceId === sv.id ? "border-primary bg-primary/10" : "border-border bg-card"}`}>
               <div className="flex items-start justify-between gap-2">
                 <span className="flex items-center gap-2 font-display text-xl"><Scissors className="h-4 w-4 text-primary" />{sv.name}</span>
-                <span className="font-display text-xl text-primary">{brl(sv.price)}</span>
+                <span className="whitespace-nowrap text-right font-display text-xl text-primary">
+                  {promo && <span className="mr-1 text-sm text-muted-foreground line-through">{brl(sv.price)}</span>}
+                  {brl(price)}
+                </span>
               </div>
+              {promo && promo.weekday !== undefined && (
+                <p className="mt-1 text-xs font-semibold text-primary">Promoção de {WEEKDAYS[promo.weekday]} · {brl(promo.price as number)}</p>
+              )}
               <p className="mt-2 text-sm text-muted-foreground">{sv.description}</p>
               <p className="mt-1 text-xs text-muted-foreground">{sv.duration} min</p>
             </button>
-          ))}
+            );
+          })}
         </div>
 
         <h2 className="mt-12 font-display text-3xl">2. Dia e horário</h2>
