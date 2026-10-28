@@ -7,7 +7,7 @@ import logo from "@/assets/logo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SLOTS, brl, isSlotTaken, setState, toISO, uid, useStore, type Booking } from "@/lib/store";
+import { SLOTS, WEEKDAYS, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore, type Booking, type Promo } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -62,7 +62,7 @@ function AdminPage() {
 
 function Financeiro() {
   const s = useStore();
-  const price = (b: Booking) => s.services.find((x) => x.id === b.serviceId)?.price ?? 0;
+  const price = (b: Booking) => priceFor(s, b.serviceId, b.date);
   const done = s.bookings.filter((b) => b.status === "concluido");
   const today = toISO(new Date());
   const since = (days: number) => { const d = new Date(); d.setDate(d.getDate() - days); return toISO(d); };
@@ -141,7 +141,18 @@ function Agenda() {
 
 function Catalogo() {
   const s = useStore();
-  const [promo, setPromo] = useState({ title: "", text: "" });
+  const [promo, setPromo] = useState({ title: "", text: "", serviceId: "", weekday: "", price: "" });
+  const setPromoField = (id: string, patch: Partial<Promo>) =>
+    setState((st) => ({ ...st, promos: st.promos.map((x) => (x.id === id ? { ...x, ...patch } : x)) }));
+  const createPromo = () => {
+    if (!promo.title || !promo.serviceId || promo.weekday === "" || promo.price === "") { toast.error("Preencha título, serviço, dia e preço"); return; }
+    setState((st) => ({
+      ...st,
+      promos: [...st.promos, { id: uid(), title: promo.title, text: promo.text, active: true, serviceId: promo.serviceId, weekday: Number(promo.weekday), price: Number(promo.price) }],
+    }));
+    setPromo({ title: "", text: "", serviceId: "", weekday: "", price: "" });
+  };
+  const selCls = "h-9 rounded-md border border-input bg-background px-2 text-sm";
   return (
     <div className="space-y-8 pt-4">
       <section className="space-y-2">
@@ -169,16 +180,44 @@ function Catalogo() {
       <section className="space-y-2">
         <h2 className="font-display text-2xl">Promoções</h2>
         {s.promos.map((p) => (
-          <div key={p.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3">
-            <span className="min-w-0 flex-1"><strong>{p.title}</strong> — {p.text}</span>
-            <Button size="sm" variant={p.active ? "default" : "outline"} onClick={() => setState((st) => ({ ...st, promos: st.promos.map((x) => (x.id === p.id ? { ...x, active: !x.active } : x)) }))}>{p.active ? "Ativa" : "Inativa"}</Button>
-            <Button size="icon" variant="ghost" onClick={() => setState((st) => ({ ...st, promos: st.promos.filter((x) => x.id !== p.id) }))}><Trash2 className="h-4 w-4" /></Button>
+          <div key={p.id} className="space-y-3 rounded-lg border border-border bg-card p-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="min-w-0 flex-1"><strong>{p.title}</strong> — {p.text}</span>
+              <Button size="sm" variant={p.active ? "default" : "outline"} onClick={() => setPromoField(p.id, { active: !p.active })}>{p.active ? "Ativa" : "Inativa"}</Button>
+              <Button size="icon" variant="ghost" onClick={() => setState((st) => ({ ...st, promos: st.promos.filter((x) => x.id !== p.id) }))}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <select className={selCls} value={p.serviceId ?? ""} onChange={(e) => setPromoField(p.id, { serviceId: e.target.value || undefined })}>
+                <option value="">Todos os serviços</option>
+                {s.services.map((sv) => <option key={sv.id} value={sv.id}>{sv.name}</option>)}
+              </select>
+              <select className={selCls} value={p.weekday ?? ""} onChange={(e) => setPromoField(p.id, { weekday: e.target.value === "" ? undefined : Number(e.target.value) })}>
+                <option value="">Qualquer dia</option>
+                {WEEKDAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
+              </select>
+              <Input type="number" placeholder="Preço promocional" value={p.price ?? ""} onChange={(e) => setPromoField(p.id, { price: e.target.value === "" ? undefined : Number(e.target.value) })} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {p.serviceId ? s.services.find((x) => x.id === p.serviceId)?.name : "Qualquer serviço"}
+              {" · "}
+              {p.weekday !== undefined ? WEEKDAYS[p.weekday] : "qualquer dia"}
+              {p.price !== undefined ? ` · sai por ${brl(p.price)}` : ""}
+            </p>
           </div>
         ))}
-        <div className="grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
+        <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto_auto_auto_auto]">
           <Input placeholder="Título" value={promo.title} onChange={(e) => setPromo({ ...promo, title: e.target.value })} />
           <Input placeholder="Descrição" value={promo.text} onChange={(e) => setPromo({ ...promo, text: e.target.value })} />
-          <Button onClick={() => { if (!promo.title) return; setState((st) => ({ ...st, promos: [...st.promos, { id: uid(), ...promo, active: true }] })); setPromo({ title: "", text: "" }); }}>Criar</Button>
+          <select className={selCls} value={promo.serviceId} onChange={(e) => setPromo({ ...promo, serviceId: e.target.value })}>
+            <option value="">Serviço</option>
+            {s.services.map((sv) => <option key={sv.id} value={sv.id}>{sv.name}</option>)}
+          </select>
+          <select className={selCls} value={promo.weekday} onChange={(e) => setPromo({ ...promo, weekday: e.target.value })}>
+            <option value="">Dia</option>
+            {WEEKDAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
+          </select>
+          <Input className="w-28" type="number" placeholder="Preço" value={promo.price} onChange={(e) => setPromo({ ...promo, price: e.target.value })} />
+          <Button onClick={createPromo}>Criar</Button>
         </div>
       </section>
     </div>
