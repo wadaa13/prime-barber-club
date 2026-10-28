@@ -167,8 +167,8 @@ function Index() {
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           {s.plans.map((p, i) => (
             <div key={p.id} className={`rounded-2xl border p-6 ${i === 2 ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"}`}>
-              <p className="font-display text-xl">{p.name}</p>
-              <p className="mt-1 font-display text-2xl text-primary">{brl(p.price)}<span className="text-xs font-normal text-muted-foreground">/mês</span></p>
+              <p className="font-display text-2xl">{p.name}</p>
+              <p className="mt-2 font-display text-4xl text-primary">{brl(p.price)}<span className="text-base text-muted-foreground">/mês</span></p>
               <p className="mt-3 text-sm text-muted-foreground">{p.description}</p>
               <Button asChild variant={i === 2 ? "default" : "outline"} className="mt-5 w-full"><Link to="/cliente">Quero esse</Link></Button>
             </div>
