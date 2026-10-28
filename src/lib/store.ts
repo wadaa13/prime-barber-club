@@ -89,6 +89,7 @@ const initial: State = {
       price: 35,
     },
   ],
+  reviews: [],
 };
 
 const KEY = "barbearia100erro:v1";

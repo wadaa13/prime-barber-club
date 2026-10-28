@@ -22,7 +22,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const ADMIN_PIN = "1000";
+const ADMIN_PIN = "barbearia100erro";
 
 function AdminPage() {
   const [ok, setOk] = useState(false);
