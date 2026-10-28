@@ -7,7 +7,7 @@ import logo from "@/assets/logo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SLOTS, WEEKDAYS, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore, type Booking, type Promo } from "@/lib/store";
+import { SLOTS, WEEKDAYS, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore, type Booking, type Promo, type Review } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const ADMIN_PIN = "1000";
+const ADMIN_PIN = "barbearia100erro";
 
 function AdminPage() {
   const [ok, setOk] = useState(false);
@@ -50,11 +50,13 @@ function AdminPage() {
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
           <TabsTrigger value="catalogo">Catálogo</TabsTrigger>
           <TabsTrigger value="clientes">Clientes</TabsTrigger>
+          <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
         </TabsList>
         <TabsContent value="financeiro"><Financeiro /></TabsContent>
         <TabsContent value="agenda"><Agenda /></TabsContent>
         <TabsContent value="catalogo"><Catalogo /></TabsContent>
         <TabsContent value="clientes"><Clientes /></TabsContent>
+        <TabsContent value="avaliacoes"><Avaliacoes /></TabsContent>
       </Tabs>
     </div>
   );
@@ -238,6 +240,62 @@ function Clientes() {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function Avaliacoes() {
+  const s = useStore();
+  const [r, setR] = useState({ author: "", text: "", rating: "5", date: toISO(new Date()) });
+  const setRv = (id: string, patch: Partial<Review>) =>
+    setState((st) => ({ ...st, reviews: st.reviews.map((x) => (x.id === id ? { ...x, ...patch } : x)) }));
+  const add = () => {
+    if (!r.author || !r.text) { toast.error("Informe nome e texto"); return; }
+    setState((st) => ({ ...st, reviews: [...st.reviews, { id: uid(), author: r.author, text: r.text, rating: Number(r.rating), date: r.date }] }));
+    setR({ author: "", text: "", rating: "5", date: toISO(new Date()) });
+    toast.success("Avaliação publicada");
+  };
+  const selCls = "h-9 rounded-md border border-input bg-background px-2 text-sm";
+  return (
+    <div className="space-y-4 pt-4">
+      <div>
+        <h2 className="font-display text-2xl">Avaliações do site</h2>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Depoimentos publicados pela barbearia e exibidos na página inicial. Para que as avaliações do Google
+          apareçam sozinhas, é preciso conectar a conta do Google da barbearia ao site.
+        </p>
+      </div>
+      {s.reviews.length === 0 ? (
+        <p className="text-muted-foreground">Nenhuma avaliação publicada ainda.</p>
+      ) : (
+        <div className="space-y-3">
+          {s.reviews.map((rv) => (
+            <div key={rv.id} className="space-y-2 rounded-lg border border-border bg-card p-3">
+              <div className="grid gap-2 sm:grid-cols-[1fr_130px_150px_auto]">
+                <Input value={rv.author} onChange={(e) => setRv(rv.id, { author: e.target.value })} />
+                <select className={selCls} value={rv.rating} onChange={(e) => setRv(rv.id, { rating: Number(e.target.value) })}>
+                  {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} estrela{n > 1 ? "s" : ""}</option>)}
+                </select>
+                <Input type="date" value={rv.date} onChange={(e) => setRv(rv.id, { date: e.target.value })} />
+                <Button size="icon" variant="ghost" onClick={() => setState((st) => ({ ...st, reviews: st.reviews.filter((x) => x.id !== rv.id) }))}><Trash2 className="h-4 w-4" /></Button>
+              </div>
+              <Input value={rv.text} onChange={(e) => setRv(rv.id, { text: e.target.value })} />
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <p className="font-display text-lg">Publicar nova avaliação</p>
+        <div className="grid gap-2 sm:grid-cols-[1fr_130px_150px]">
+          <Input placeholder="Nome do cliente" value={r.author} onChange={(e) => setR({ ...r, author: e.target.value })} />
+          <select className={selCls} value={r.rating} onChange={(e) => setR({ ...r, rating: e.target.value })}>
+            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} estrela{n > 1 ? "s" : ""}</option>)}
+          </select>
+          <Input type="date" value={r.date} onChange={(e) => setR({ ...r, date: e.target.value })} />
+        </div>
+        <Input placeholder="Texto da avaliação" value={r.text} onChange={(e) => setR({ ...r, text: e.target.value })} />
+        <Button onClick={add}>Publicar</Button>
+      </div>
     </div>
   );
 }
