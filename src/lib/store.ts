@@ -24,6 +24,13 @@ export type Promo = {
   weekday?: number | undefined; // 0=Dom ... 6=Sáb
   price?: number | undefined; // preço promocional
 };
+export type Review = {
+  id: string;
+  author: string;
+  text: string;
+  rating: number; // 1 a 5
+  date: string; // yyyy-mm-dd
+};
 
 export type State = {
   schema: number;
@@ -33,6 +40,7 @@ export type State = {
   bookings: Booking[];
   blocked: string[]; // "yyyy-mm-dd HH:mm"
   promos: Promo[];
+  reviews: Review[];
   currentClientId?: string | undefined;
 };
 
@@ -51,7 +59,7 @@ export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Se
 export const MAPS_URL = "https://maps.app.goo.gl/6kzqDmy3GBdxwZf67";
 export const MAP = { lat: -23.9935101, lng: -46.2800968, z: 17, street: "Rua Luiz Felipe Machado", area: "Vila Santa Rosa · Guarujá · SP", zip: "11431-130" };
 
-const SCHEMA = 2;
+const SCHEMA = 3;
 
 const initial: State = {
   schema: SCHEMA,
