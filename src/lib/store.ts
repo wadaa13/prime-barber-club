@@ -97,11 +97,18 @@ let state: State = initial;
 let loaded = false;
 const listeners = new Set<() => void>();
 
-// Dados antigos guardados no aparelho ganham os planos e as promoções novos.
-function migrate(raw: State): State {
-  const v = (raw as { schema?: number }).schema ?? 1;
-  if (v >= SCHEMA) return raw;
-  return { ...raw, schema: SCHEMA, plans: initial.plans, promos: initial.promos };
+// Dados antigos guardados no aparelho ganham os planos, as promoções e as avaliações novas.
+function migrate(parsed: Partial<State>): State {
+  const v = typeof parsed.schema === "number" ? parsed.schema : 1;
+  if (v >= SCHEMA) return { ...initial, ...parsed } as State;
+  return {
+    ...initial,
+    ...parsed,
+    schema: SCHEMA,
+    plans: initial.plans,
+    promos: initial.promos,
+    reviews: initial.reviews,
+  };
 }
 
 function load() {
@@ -109,7 +116,7 @@ function load() {
   loaded = true;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) state = migrate({ ...initial, ...JSON.parse(raw) });
+    if (raw) state = migrate(JSON.parse(raw) as Partial<State>);
   } catch {}
 }
 
