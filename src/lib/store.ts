@@ -59,7 +59,7 @@ export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Se
 export const MAPS_URL = "https://maps.app.goo.gl/6kzqDmy3GBdxwZf67";
 export const MAP = { lat: -23.9935101, lng: -46.2800968, z: 17, street: "Rua Luiz Felipe Machado", area: "Vila Santa Rosa · Guarujá · SP", zip: "11431-130" };
 
-const SCHEMA = 3;
+const SCHEMA = 4;
 
 const initial: State = {
   schema: SCHEMA,
@@ -78,17 +78,7 @@ const initial: State = {
   clients: [],
   bookings: [],
   blocked: [],
-  promos: [
-    {
-      id: "terca-corte",
-      title: "Terça-feira · Corte por R$ 35",
-      text: "Todas as terças-feiras os cortes saem por R$ 35. Escolha uma terça no calendário e o valor já vem certo.",
-      active: true,
-      serviceId: "corte",
-      weekday: 2,
-      price: 35,
-    },
-  ],
+  promos: [],
   reviews: [],
 };
 
