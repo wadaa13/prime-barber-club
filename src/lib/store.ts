@@ -59,9 +59,9 @@ export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Se
 export const MAPS_URL = "https://maps.app.goo.gl/6kzqDmy3GBdxwZf67";
 export const MAP = { lat: -23.9935101, lng: -46.2800968, z: 17, street: "Rua Luiz Felipe Machado", area: "Vila Santa Rosa · Guarujá · SP", zip: "11431-130" };
 
-const SCHEMA = 3;
+const SCHEMA = 4;
 
-const initial: State = {
+export const initial: State = {
   schema: SCHEMA,
   services: [
     { id: "corte", name: "Corte", price: 50, duration: 40, description: "Corte masculino com acabamento na navalha." },
@@ -78,17 +78,7 @@ const initial: State = {
   clients: [],
   bookings: [],
   blocked: [],
-  promos: [
-    {
-      id: "terca-corte",
-      title: "Terça-feira · Corte por R$ 35",
-      text: "Todas as terças-feiras os cortes saem por R$ 35. Escolha uma terça no calendário e o valor já vem certo.",
-      active: true,
-      serviceId: "corte",
-      weekday: 2,
-      price: 35,
-    },
-  ],
+  promos: [],
   reviews: [],
 };
 
@@ -97,18 +87,16 @@ let state: State = initial;
 let loaded = false;
 const listeners = new Set<() => void>();
 
-// Dados antigos guardados no aparelho ganham os planos, as promoções e as avaliações novas.
+// Dados antigos guardados no aparelho ganham os planos e as avaliações novas.
 function migrate(parsed: Partial<State>): State {
   const v = typeof parsed.schema === "number" ? parsed.schema : 1;
-  if (v >= SCHEMA) return { ...initial, ...parsed } as State;
-  return {
-    ...initial,
-    ...parsed,
-    schema: SCHEMA,
-    plans: initial.plans,
-    promos: initial.promos,
-    reviews: initial.reviews,
-  };
+  const base = { ...initial, ...parsed } as State;
+  if (v < 2) base.plans = initial.plans;
+  if (v < 3) base.reviews = initial.reviews;
+  // A promoção de terça-feira saiu do ar: some dela em dados antigos.
+  base.promos = (Array.isArray(base.promos) ? base.promos : []).filter((p) => p.id !== "terca-corte");
+  base.schema = SCHEMA;
+  return base;
 }
 
 function load() {
