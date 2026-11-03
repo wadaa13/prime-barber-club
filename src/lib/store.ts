@@ -87,18 +87,16 @@ let state: State = initial;
 let loaded = false;
 const listeners = new Set<() => void>();
 
-// Dados antigos guardados no aparelho ganham os planos, as promoções e as avaliações novas.
+// Dados antigos guardados no aparelho ganham os planos e as avaliações novas.
 function migrate(parsed: Partial<State>): State {
   const v = typeof parsed.schema === "number" ? parsed.schema : 1;
-  if (v >= SCHEMA) return { ...initial, ...parsed } as State;
-  return {
-    ...initial,
-    ...parsed,
-    schema: SCHEMA,
-    plans: initial.plans,
-    promos: initial.promos,
-    reviews: initial.reviews,
-  };
+  const base = { ...initial, ...parsed } as State;
+  if (v < 2) base.plans = initial.plans;
+  if (v < 3) base.reviews = initial.reviews;
+  // A promoção de terça-feira saiu do ar: some dela em dados antigos.
+  base.promos = (Array.isArray(base.promos) ? base.promos : []).filter((p) => p.id !== "terca-corte");
+  base.schema = SCHEMA;
+  return base;
 }
 
 function load() {
