@@ -2,7 +2,7 @@
 
 ## Done
 - Plan descriptions: Prata 160 (só corte, um serviço por vez na semana), Ouro 200 (corte e barba, um serviço por vez na semana), Prime 230 (ilimitado, corte e barba por tempo e vezes ilimitadas).
-- Promoção de terça-feira: corte por R$ 35 (aplicada no preço do agendamento, não só no banner).
+- Promoção de terça-feira (corte por R$ 35): criada e depois retirada do ar a pedido — na terça o corte custa R$ 50.
 - Mapa pequeno do Google no rodapé com o endereço do link enviado (tiles do mapa carregando, testado no navegador).
 - Horário de funcionamento: 10h às 18h30, segunda a sábado (horários do calendário ajustados).
 - Fonte do preço dos planos mensais: voltou ao tamanho original.

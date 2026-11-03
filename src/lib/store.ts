@@ -61,7 +61,7 @@ export const MAP = { lat: -23.9935101, lng: -46.2800968, z: 17, street: "Rua Lui
 
 const SCHEMA = 4;
 
-const initial: State = {
+export const initial: State = {
   schema: SCHEMA,
   services: [
     { id: "corte", name: "Corte", price: 50, duration: 40, description: "Corte masculino com acabamento na navalha." },
