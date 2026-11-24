@@ -1,7 +1,10 @@
 import { Clock, MapPin, Navigation } from "lucide-react";
-import { HOURS, MAP, MAPS_URL } from "@/lib/store";
+import { MAP, MAPS_URL, WEEKDAYS, WEEK_HOURS } from "@/lib/store";
 
 const EMBED = `https://www.google.com/maps?q=${MAP.lat},${MAP.lng}&z=${MAP.z}&hl=pt-BR&output=embed`;
+
+// Ordem de exibição: segunda a domingo.
+const ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export function SiteFooter() {
   return (
@@ -19,9 +22,20 @@ export function SiteFooter() {
               {MAP.area} · CEP {MAP.zip}
             </span>
           </p>
-          <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 shrink-0 text-primary" /> {HOURS.label}
-          </p>
+          <div className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
+            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <ul className="space-y-0.5">
+              {ORDER.map((d) => {
+                const h = WEEK_HOURS[d];
+                return (
+                  <li key={d} className="flex gap-2">
+                    <span className="w-20">{WEEKDAYS[d]}</span>
+                    <span className={h ? "" : "text-primary"}>{h ? h.label : "Fechado"}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <a
             href={MAPS_URL}
             target="_blank"
@@ -44,7 +58,7 @@ export function SiteFooter() {
         </div>
       </div>
       <p className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        Barbearia 100 Erro · {HOURS.label}
+        Barbearia 100 Erro · Ter a Sáb · domingo e segunda fechado
       </p>
     </footer>
   );

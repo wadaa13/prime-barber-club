@@ -4,7 +4,7 @@
 - Plan descriptions: Prata 160 (só corte, um serviço por vez na semana), Ouro 200 (corte e barba, um serviço por vez na semana), Prime 230 (ilimitado, corte e barba por tempo e vezes ilimitadas).
 - Promoção de terça-feira (corte por R$ 35): criada e depois retirada do ar a pedido — na terça o corte custa R$ 50.
 - Mapa pequeno do Google no rodapé com o endereço do link enviado (tiles do mapa carregando, testado no navegador).
-- Horário de funcionamento: 10h às 18h30, segunda a sábado (horários do calendário ajustados).
+- Horário de funcionamento por dia: domingo e segunda fechado; terça e quarta 11h–18h; quinta 10h–19h; sexta 9h–20h; sábado 9h–18h. Rodapé mostra a semana inteira e o calendário de agendamento só oferece horários dentro do expediente de cada dia.
 - Fonte do preço dos planos mensais: voltou ao tamanho original.
 - Senha do painel do gestor: barbearia100erro.
 - Área de avaliações no site (seção "Avaliações" na página inicial) + publicação/edição/exclusão em /admin > Avaliações.

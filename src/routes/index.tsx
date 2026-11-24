@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DEPOSIT_RATE, HOURS, SLOTS, WEEKDAYS, activePromo, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore } from "@/lib/store";
+import { DEPOSIT_RATE, HOURS_LABEL_SHORT, WEEKDAYS, activePromo, brl, isOpenDay, isSlotTaken, priceFor, setState, slotsFor, toISO, uid, useStore, weekdayOf } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,7 +29,7 @@ function Index() {
   const days = useMemo(() => {
     const out: Date[] = [];
     const d = new Date();
-    while (out.length < 14) { if (d.getDay() !== 0) out.push(new Date(d)); d.setDate(d.getDate() + 1); }
+    while (out.length < 14) { if (isOpenDay(d.getDay())) out.push(new Date(d)); d.setDate(d.getDate() + 1); }
     return out;
   }, []);
   const [serviceId, setServiceId] = useState<string>();
@@ -56,7 +56,7 @@ function Index() {
       <SiteHeader />
       <section className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-2">
         <div>
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/40 px-3 py-1 text-sm text-primary"><Clock className="h-4 w-4" /> {HOURS.label}</p>
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/40 px-3 py-1 text-sm text-primary"><Clock className="h-4 w-4" /> {HOURS_LABEL_SHORT}</p>
           <h1 className="font-display text-5xl leading-tight md:text-6xl">Seu corte, <span className="text-primary">100 erro.</span></h1>
           <p className="mt-4 max-w-md text-muted-foreground">Escolha o serviço, o dia e o horário. Sem fila, sem mensagem perdida no WhatsApp.</p>
           <Button asChild size="lg" className="mt-6"><a href="#agendar">Agendar agora</a></Button>
@@ -114,7 +114,7 @@ function Index() {
           })}
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-8">
-          {SLOTS.map((t) => {
+          {slotsFor(weekdayOf(date)).map((t) => {
             const taken = isSlotTaken(s, date, t);
             return (
               <button key={t} disabled={taken} onClick={() => setTime(t)}

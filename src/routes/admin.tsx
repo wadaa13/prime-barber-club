@@ -7,7 +7,7 @@ import logo from "@/assets/logo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SLOTS, WEEKDAYS, brl, isSlotTaken, priceFor, setState, toISO, uid, useStore, type Booking, type Promo, type Review } from "@/lib/store";
+import { WEEKDAYS, brl, isSlotTaken, priceFor, setState, slotsFor, toISO, uid, useStore, weekdayOf, type Booking, type Promo, type Review } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -95,6 +95,7 @@ function Agenda() {
   const [walk, setWalk] = useState({ name: "", serviceId: s.services[0]?.id ?? "", time: "" });
   const upd = (id: string, p: Partial<Booking>) => setState((st) => ({ ...st, bookings: st.bookings.map((b) => (b.id === id ? { ...b, ...p } : b)) }));
   const toggleBlock = (t: string) => setState((st) => { const k = `${date} ${t}`; return { ...st, blocked: st.blocked.includes(k) ? st.blocked.filter((x) => x !== k) : [...st.blocked, k] }; });
+  const daySlots = slotsFor(weekdayOf(date));
   const addWalk = () => {
     if (!walk.name || !walk.time) { toast.error("Nome e horário"); return; }
     if (isSlotTaken(s, date, walk.time)) { toast.error("Horário ocupado"); return; }
@@ -105,7 +106,8 @@ function Agenda() {
     <div className="space-y-4 pt-4">
       <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-auto" />
       <div className="divide-y divide-border rounded-xl border border-border bg-card">
-        {SLOTS.map((t) => {
+        {daySlots.length === 0 && <p className="p-4 text-muted-foreground">Fechado neste dia (domingo e segunda não abrimos).</p>}
+        {daySlots.map((t) => {
           const b = s.bookings.find((x) => x.date === date && x.time === t && x.status !== "cancelado");
           const blocked = s.blocked.includes(`${date} ${t}`);
           const sv = b && s.services.find((x) => x.id === b.serviceId);
@@ -117,7 +119,7 @@ function Agenda() {
                   <span className="min-w-0 flex-1">{b.clientName} · {sv?.name} {b.walkIn && "(presencial)"} · <span className="text-muted-foreground">{b.paid ? "pago" : "sinal"} · {b.status}</span></span>
                   {b.status === "agendado" && <Button size="sm" onClick={() => upd(b.id, { status: "concluido", paid: true })}>Concluir</Button>}
                   <select className="h-8 rounded-md border border-input bg-background px-2 text-sm" value="" onChange={(e) => e.target.value && (isSlotTaken(s, date, e.target.value) ? toast.error("Ocupado") : upd(b.id, { time: e.target.value }))}>
-                    <option value="">Remarcar</option>{SLOTS.map((x) => <option key={x}>{x}</option>)}
+                    <option value="">Remarcar</option>{daySlots.map((x) => <option key={x}>{x}</option>)}
                   </select>
                   <Button size="sm" variant="ghost" onClick={() => upd(b.id, { status: "cancelado" })}>Cancelar</Button>
                 </>
@@ -134,7 +136,7 @@ function Agenda() {
       <div className="grid gap-2 rounded-xl border border-border bg-card p-4 sm:grid-cols-4">
         <Input placeholder="Cliente presencial" value={walk.name} onChange={(e) => setWalk({ ...walk, name: e.target.value })} />
         <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={walk.serviceId} onChange={(e) => setWalk({ ...walk, serviceId: e.target.value })}>{s.services.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
-        <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={walk.time} onChange={(e) => setWalk({ ...walk, time: e.target.value })}><option value="">Horário</option>{SLOTS.map((x) => <option key={x}>{x}</option>)}</select>
+        <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={walk.time} onChange={(e) => setWalk({ ...walk, time: e.target.value })}><option value="">Horário</option>{daySlots.map((x) => <option key={x}>{x}</option>)}</select>
         <Button onClick={addWalk}>Incluir atendimento</Button>
       </div>
     </div>

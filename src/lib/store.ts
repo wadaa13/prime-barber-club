@@ -44,16 +44,31 @@ export type State = {
   currentClientId?: string | undefined;
 };
 
-export const HOURS = { open: "10:00", close: "18:30", label: "Seg a Sáb · 10h às 18h30" };
-// Horários de 40 em 40 minutos, das 10:00 até o último que termina às 18:30.
-export const SLOTS = (() => {
+// Horário de funcionamento por dia da semana (0=Dom ... 6=Sáb). null = fechado.
+export const WEEK_HOURS: Record<number, { open: string; close: string; label: string } | null> = {
+  0: null,
+  1: null,
+  2: { open: "11:00", close: "18:00", label: "11h às 18h" },
+  3: { open: "11:00", close: "18:00", label: "11h às 18h" },
+  4: { open: "10:00", close: "19:00", label: "10h às 19h" },
+  5: { open: "09:00", close: "20:00", label: "9h às 20h" },
+  6: { open: "09:00", close: "18:00", label: "9h às 18h" },
+};
+export const HOURS_LABEL_SHORT = "Ter e Qua 11h–18h · Qui 10h–19h · Sex 9h–20h · Sáb 9h–18h";
+
+// Horários de 40 em 40 minutos dentro do expediente daquele dia da semana.
+export function slotsFor(weekday: number): string[] {
+  const h = WEEK_HOURS[weekday];
+  if (!h) return [];
+  const toMin = (t: string) => { const [a, b] = t.split(":").map(Number); return (a ?? 0) * 60 + (b ?? 0); };
   const out: string[] = [];
-  const start = 10 * 60, end = 18 * 60 + 30, step = 40;
+  const start = toMin(h.open), end = toMin(h.close), step = 40;
   for (let m = start; m + step <= end; m += step) {
     out.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
   }
   return out;
-})();
+}
+export const isOpenDay = (weekday: number) => WEEK_HOURS[weekday] != null;
 export const DEPOSIT_RATE = 0.3;
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 export const MAPS_URL = "https://maps.app.goo.gl/6kzqDmy3GBdxwZf67";
